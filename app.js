@@ -2,6 +2,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getDatabase, ref, set, get, update, onValue, push, remove }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import firebaseConfig from "./firebase-config.js";
 // ACTION_CARDS loaded from cards.json at startup (see initCards below)
 
 const firebaseConfig = {
