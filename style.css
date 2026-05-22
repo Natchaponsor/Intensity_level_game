@@ -68,10 +68,10 @@ input:focus { border-color: var(--ink); }
 
 /* GAME SCREEN */
 .game-screen-inner { max-width: 960px; width: 100%; }
-.top-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; padding: 16px 20px; background: var(--white); border-radius: var(--radius); border: 1px solid var(--border); }
-.round-info { font-size: 14px; font-weight: 600; color: var(--ink); }
-.phase-badge { font-size: 12px; font-weight: 500; padding: 5px 12px; border-radius: 100px; background: var(--bg); border: 1px solid var(--border); color: var(--ink-mid); }
-.scores-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.top-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; padding: 16px 20px; background: var(--white); border-radius: var(--radius); border: 1px solid var(--border); gap: 16px; }
+.round-info { font-size: 14px; font-weight: 600; color: var(--ink); white-space: nowrap; }
+.phase-badge { font-size: 12px; font-weight: 500; padding: 5px 12px; border-radius: 100px; background: var(--bg); border: 1px solid var(--border); color: var(--ink-mid); white-space: nowrap; }
+.scores-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; justify-content: flex-end; flex: 1; }
 .score-chip { font-size: 13px; padding: 4px 10px; background: var(--bg); border: 1px solid var(--border); border-radius: 100px; }
 .score-chip.me { background: var(--ink); color: white; border-color: var(--ink); }
 
