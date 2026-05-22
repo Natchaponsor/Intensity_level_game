@@ -33,8 +33,18 @@ let unsubscribes = [];
 
 // ─── LOAD CARDS FROM JSON ────────────────────────────────────────────────────
 async function initCards() {
-  const res = await fetch("./cards.json");
-  ACTION_CARDS = await res.json();
+  try {
+    const res = await fetch("./cards.json");
+    if (!res.ok) throw new Error("cards.json not found");
+    ACTION_CARDS = await res.json();
+  } catch (e) {
+    console.warn("Could not load cards.json, using built-in fallback.", e);
+    ACTION_CARDS = {
+      red: ["Sneeze dramatically","React to stepping on a Lego","Celebrate scoring a goal","React to seeing a spider","Greet your best friend after a year apart","React to winning the lottery","Stub your toe","React to cold water in the shower","Cheer for your team","React to dropping your phone face down"],
+      yellow: ["Explain you are running late","Ask your boss for a raise","Tell someone they have food on their face","Order coffee at a busy cafe","Apologize for accidentally bumping into someone","Explain a plot twist to a friend","Greet a neighbor you barely know","Complain about the weather","Convince a friend to try a weird food","Tell someone their outfit looks great"],
+      blue: ["Walk like you own the room","Sit down after a very long day","React to receiving an unexpected gift","Show how you dance when no one is watching","React to your team losing in the final second","Show how you act at a library","React to seeing a baby do something cute","Walk into a surprise party thrown for you","React to your food arriving at a restaurant","Show how you act when you are trying to be sneaky"]
+    };
+  }
 }
 
 // Boot: load cards then expose functions
