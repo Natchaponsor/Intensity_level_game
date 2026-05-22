@@ -96,10 +96,12 @@ Just open `index.html` in a browser. Because it uses Firebase for real-time sync
 
 ## Planned Features
 
+- [ ] Bug to be fixed (Players are not moved to the next round with Host)
 - [ ] Host can build a custom card deck in-game
 - [ ] Rejoin support if a player disconnects
 - [ ] Round timer
 - [ ] Mobile layout improvements
+- [ ] Extra theme packs and fun designs
 
 ---
 
