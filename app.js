@@ -2,7 +2,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getDatabase, ref, set, get, update, onValue, push, remove }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-import { ACTION_CARDS } from "./cards.js";
+// ACTION_CARDS loaded from cards.json at startup (see initCards below)
 
 const firebaseConfig = {
   apiKey: "AIzaSyAuxxoHSL9OR88BG-c6C8I-Q5HJh4fuSnE",
@@ -19,6 +19,7 @@ const firebaseApp = initializeApp(firebaseConfig);
 const db = getDatabase(firebaseApp);
 
 // ─── STATE ────────────────────────────────────────────────────────────────────
+let ACTION_CARDS = null;
 let myId = null;
 let myName = "";
 let roomCode = "";
@@ -29,6 +30,26 @@ let hasSubmittedGuess = false;
 let hasVotedOn = {};        // { red: true/false, yellow: true/false, blue: true/false }
 let calledVoteOn = {};      // colors this player called a vote on this round
 let unsubscribes = [];
+
+// ─── LOAD CARDS FROM JSON ────────────────────────────────────────────────────
+async function initCards() {
+  const res = await fetch("./cards.json");
+  ACTION_CARDS = await res.json();
+}
+
+// Boot: load cards then expose functions
+initCards().then(() => {
+  window.goToCreate = goToCreate;
+  window.goToJoin = goToJoin;
+  window.startGame = startGame;
+  window.callRedrawVote = callRedrawVote;
+  window.castVote = castVote;
+  window.advanceToGuessing = advanceToGuessing;
+  window.toggleGuess = toggleGuess;
+  window.submitGuesses = submitGuesses;
+  window.nextRound = nextRound;
+  window.endGame = endGame;
+});
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
 function showScreen(id) {
@@ -544,14 +565,4 @@ function listenForPhaseChanges() {
   });
 }
 
-// ─── EXPOSE FUNCTIONS TO HTML ────────────────────────────────────────────────
-window.goToCreate = goToCreate;
-window.goToJoin = goToJoin;
-window.startGame = startGame;
-window.callRedrawVote = callRedrawVote;
-window.castVote = castVote;
-window.advanceToGuessing = advanceToGuessing;
-window.toggleGuess = toggleGuess;
-window.submitGuesses = submitGuesses;
-window.nextRound = nextRound;
-window.endGame = endGame;
+// Functions exposed to HTML via initCards().then() above
