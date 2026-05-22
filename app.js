@@ -132,8 +132,8 @@ function enterWaitingRoom() {
     const room = snap.val();
     renderPlayerList(room.players, room.host);
 
-    // If game started, move to game screen
-    if (room.status === "playing") {
+    // If game started, move to game screen (for all players including host)
+    if (room.status === "playing" && document.getElementById("screen-waiting").classList.contains("active")) {
       gameState = room;
       enterGameScreen();
     }
@@ -160,11 +160,14 @@ async function startGame() {
     return showError("start-error", "Need at least 2 players to start.");
   }
   const totalRounds = parseInt(document.getElementById("rounds-input").value) || 5;
+  // First update status so all players enter game screen
   await update(ref(db, `rooms/${roomCode}`), {
     status: "playing",
     totalRounds,
     currentRound: 1,
   });
+  // Small delay to let listeners attach before writing round data
+  await new Promise(r => setTimeout(r, 800));
   await startRound(players, 1);
 }
 
@@ -215,9 +218,9 @@ function renderGameScreen(room) {
 
   // Scores
   const scoresRow = document.getElementById("scores-row");
-  scoresRow.innerHTML = Object.entries(room.players || {})
-    .sort((a,b) => b[1].score - a[1].score)
-    .map(([pid, p]) => `
+  const sorted = Object.entries(room.players || {}).sort((a,b) => b[1].score - a[1].score);
+  scoresRow.innerHTML = `<span style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-light);margin-right:6px;align-self:center;">Scores</span>`
+    + sorted.map(([pid, p]) => `
       <span class="score-chip ${pid === myId ? 'me' : ''}">
         ${p.name}: ${p.score}
       </span>
