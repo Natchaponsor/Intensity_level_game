@@ -172,3 +172,43 @@ input:focus { border-color: var(--ink); }
   .action-cards-grid { grid-template-columns: 1fr; }
   .lobby-box, .waiting-box, .reveal-box { padding: 28px 20px; }
 }
+
+/* HORIZONTAL INTENSITY CARD */
+.intensity-card-horizontal {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-bottom: 12px;
+}
+.intensity-card-horizontal.red { background: var(--red-soft); border: 2px solid var(--red); color: var(--red); }
+.intensity-card-horizontal.yellow { background: var(--yellow-soft); border: 2px solid var(--yellow); color: var(--yellow); }
+.intensity-card-horizontal.blue { background: var(--blue-soft); border: 2px solid var(--blue); color: var(--blue); }
+.intensity-card-horizontal .intensity-number { font-size: 56px; font-weight: 700; line-height: 1; flex-shrink: 0; }
+.intensity-card-right { flex: 1; }
+.intensity-card-right .intensity-label { font-size: 15px; font-weight: 600; }
+
+/* HORIZONTAL ACTION CARDS */
+.my-card { background: var(--white); border-radius: var(--radius); border: 1px solid var(--border); padding: 20px 24px; margin-bottom: 16px; }
+.action-cards-panel { background: var(--white); border-radius: var(--radius); border: 1px solid var(--border); padding: 20px 24px; margin-bottom: 16px; }
+.action-cards-grid-h { display: flex; flex-direction: column; gap: 10px; }
+.action-card-h {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+}
+.action-card-h.red { background: var(--red-soft); border: 2px solid var(--red-border); }
+.action-card-h.yellow { background: var(--yellow-soft); border: 2px solid var(--yellow-border); }
+.action-card-h.blue { background: var(--blue-soft); border: 2px solid var(--blue-border); }
+.action-card-left { display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 80px; flex-shrink: 0; }
+.action-card-h .action-card-color { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+.action-card-h.red .action-card-color { color: var(--red); }
+.action-card-h.yellow .action-card-color { color: var(--yellow); }
+.action-card-h.blue .action-card-color { color: var(--blue); }
+.action-card-h .action-card-text { flex: 1; font-size: 15px; font-weight: 500; color: var(--ink); line-height: 1.5; }
+
+/* Remove old game-grid since layout is now stacked */
+.game-grid { display: block; }
