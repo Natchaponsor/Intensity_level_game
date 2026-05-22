@@ -71,40 +71,42 @@
       <!-- VOTE BANNERS -->
       <div id="vote-banners"></div>
 
-      <!-- MAIN GRID -->
-      <div class="game-grid">
-
-        <!-- MY INTENSITY CARD -->
-        <div class="my-card">
-          <div class="my-card-title">My Intensity Card</div>
-          <div class="intensity-card" id="my-intensity-card">
-            <div class="intensity-number" id="my-intensity-number">?</div>
-            <div class="intensity-label" id="my-intensity-label">Waiting...</div>
-          </div>
-          <div style="font-size:12px;color:var(--ink-light);line-height:1.6;">
-            Perform the action card matching your color at this intensity level.
+      <!-- MY INTENSITY CARD -->
+      <div class="my-card">
+        <div class="my-card-title">My Intensity Card</div>
+        <div class="intensity-card-horizontal" id="my-intensity-card">
+          <div class="intensity-number" id="my-intensity-number">?</div>
+          <div class="intensity-card-right">
+            <div class="intensity-label" id="my-intensity-label">Waiting for cards...</div>
+            <div style="font-size:12px;color:inherit;opacity:0.7;margin-top:4px;line-height:1.5;">Perform the action matching your color at this intensity level.</div>
           </div>
         </div>
+      </div>
 
-        <!-- ACTION CARDS -->
-        <div class="action-cards-panel">
-          <div class="action-cards-title">Action Cards This Round</div>
-          <div class="action-cards-grid">
-            <div class="action-card red" id="action-card-red">
+      <!-- ACTION CARDS -->
+      <div class="action-cards-panel">
+        <div class="action-cards-title">Action Cards This Round</div>
+        <div class="action-cards-grid-h">
+          <div class="action-card-h red" id="action-card-red">
+            <div class="action-card-left">
               <div class="action-card-color">Red</div>
-              <div class="action-card-text" id="action-text-red">...</div>
               <button class="redraw-btn" id="redraw-btn-red" onclick="callRedrawVote('red')" disabled>Vote to Redraw</button>
             </div>
-            <div class="action-card yellow" id="action-card-yellow">
+            <div class="action-card-text" id="action-text-red">...</div>
+          </div>
+          <div class="action-card-h yellow" id="action-card-yellow">
+            <div class="action-card-left">
               <div class="action-card-color">Yellow</div>
-              <div class="action-card-text" id="action-text-yellow">...</div>
               <button class="redraw-btn" id="redraw-btn-yellow" onclick="callRedrawVote('yellow')" disabled>Vote to Redraw</button>
             </div>
-            <div class="action-card blue" id="action-card-blue">
+            <div class="action-card-text" id="action-text-yellow">...</div>
+          </div>
+          <div class="action-card-h blue" id="action-card-blue">
+            <div class="action-card-left">
               <div class="action-card-color">Blue</div>
-              <div class="action-card-text" id="action-text-blue">...</div>
               <button class="redraw-btn" id="redraw-btn-blue" onclick="callRedrawVote('blue')" disabled>Vote to Redraw</button>
             </div>
+            <div class="action-card-text" id="action-text-blue">...</div>
           </div>
         </div>
       </div>
