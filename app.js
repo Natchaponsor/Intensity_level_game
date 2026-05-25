@@ -3,6 +3,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import { getDatabase, ref, set, get, update, onValue, push, remove }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 // ACTION_CARDS loaded from cards.json at startup (see initCards below)
+// THEME_PACKS loaded from cards.json as well
 
 const firebaseConfig = {
   apiKey: "AIzaSyAuxxoHSL9OR88BG-c6C8I-Q5HJh4fuSnE",
@@ -20,6 +21,8 @@ const db = getDatabase(firebaseApp);
 
 // ─── STATE ────────────────────────────────────────────────────────────────────
 let ACTION_CARDS = null;
+let THEME_PACKS = null;
+let selectedTheme = "classic";
 let myId = null;
 let myName = "";
 let roomCode = "";
@@ -36,7 +39,15 @@ async function initCards() {
   try {
     const res = await fetch("./cards.json");
     if (!res.ok) throw new Error("cards.json not found");
-    ACTION_CARDS = await res.json();
+    const data = await res.json();
+    // Support both flat format {red,yellow,blue} and themed format {classic:{red,yellow,blue}, ...}
+    if (data.classic) {
+      THEME_PACKS = data;
+      ACTION_CARDS = data.classic;
+    } else {
+      ACTION_CARDS = data;
+      THEME_PACKS = { classic: data };
+    }
   } catch (e) {
     console.warn("Could not load cards.json, using built-in fallback.", e);
     ACTION_CARDS = {
@@ -44,6 +55,7 @@ async function initCards() {
       yellow: ["Explain you are running late","Ask your boss for a raise","Tell someone they have food on their face","Order coffee at a busy cafe","Apologize for accidentally bumping into someone","Explain a plot twist to a friend","Greet a neighbor you barely know","Complain about the weather","Convince a friend to try a weird food","Tell someone their outfit looks great"],
       blue: ["Walk like you own the room","Sit down after a very long day","React to receiving an unexpected gift","Show how you dance when no one is watching","React to your team losing in the final second","Show how you act at a library","React to seeing a baby do something cute","Walk into a surprise party thrown for you","React to your food arriving at a restaurant","Show how you act when you are trying to be sneaky"]
     };
+    THEME_PACKS = { classic: ACTION_CARDS };
   }
 }
 
@@ -79,6 +91,7 @@ async function attemptRejoin() {
 
 // Boot: load cards then expose functions
 initCards().then(() => {
+  window.showStep = showStep;
   window.goToCreate = goToCreate;
   window.goToJoin = goToJoin;
   window.startGame = startGame;
@@ -124,10 +137,11 @@ function pickRandom(arr) {
 }
 
 function pickRandomCards() {
+  const deck = (THEME_PACKS && THEME_PACKS[selectedTheme]) ? THEME_PACKS[selectedTheme] : ACTION_CARDS;
   return {
-    red: pickRandom(ACTION_CARDS.red),
-    yellow: pickRandom(ACTION_CARDS.yellow),
-    blue: pickRandom(ACTION_CARDS.blue),
+    red: pickRandom(deck.red),
+    yellow: pickRandom(deck.yellow),
+    blue: pickRandom(deck.blue),
   };
 }
 
@@ -143,9 +157,17 @@ function assignIntensityCards(players) {
   return cards;
 }
 
+// ─── LANDING NAVIGATION ───────────────────────────────────────────────────────
+function showStep(step) {
+  document.getElementById("step-action").classList.add("hidden");
+  document.getElementById("step-create").classList.add("hidden");
+  document.getElementById("step-join").classList.add("hidden");
+  document.getElementById("step-" + step).classList.remove("hidden");
+}
+
 // ─── LANDING ─────────────────────────────────────────────────────────────────
 async function goToCreate() {
-  const name = document.getElementById("player-name").value.trim();
+  const name = (document.getElementById("player-name-create") || document.getElementById("player-name"))?.value.trim();
   if (!name) return showError("landing-error", "Please enter your name.");
 
   myName = name;
@@ -172,7 +194,7 @@ async function goToCreate() {
 }
 
 async function goToJoin() {
-  const name = document.getElementById("player-name").value.trim();
+  const name = (document.getElementById("player-name-join") || document.getElementById("player-name"))?.value.trim();
   const code = document.getElementById("join-code").value.trim().toUpperCase();
   if (!name) return showError("landing-error", "Please enter your name.");
   if (!code) return showError("landing-error", "Please enter a room code.");
@@ -242,11 +264,13 @@ async function startGame() {
     return showError("start-error", "Need at least 2 players to start.");
   }
   const totalRounds = parseInt(document.getElementById("rounds-input").value) || 5;
+  selectedTheme = document.getElementById("theme-select")?.value || "classic";
   // First update status so all players enter game screen
   await update(ref(db, `rooms/${roomCode}`), {
     status: "playing",
     totalRounds,
     currentRound: 1,
+    theme: selectedTheme,
   });
   // Small delay to let listeners attach before writing round data
   await new Promise(r => setTimeout(r, 800));
@@ -255,6 +279,8 @@ async function startGame() {
 
 // ─── GAME ────────────────────────────────────────────────────────────────────
 async function startRound(players, roundNum) {
+  const roomSnap = await get(ref(db, `rooms/${roomCode}/theme`));
+  if (roomSnap.exists()) selectedTheme = roomSnap.val();
   const intensityCards = assignIntensityCards(players);
   const actionCards = pickRandomCards();
 
@@ -281,16 +307,13 @@ function enterGameScreen() {
   hasVotedOn = {};
   calledVoteOn = {};
 
+  let lastRound = 0;
+
   const unsub = onValue(ref(db, `rooms/${roomCode}`), snap => {
     if (!snap.exists()) return;
     gameState = snap.val();
     const phase = gameState.phase;
-
-    // Handle reveal screen for non-host
-    if (phase === "reveal") {
-      renderReveal(gameState);
-      return;
-    }
+    const currentRound = gameState.currentRound;
 
     // Handle final screen
     if (phase === "final") {
@@ -298,13 +321,20 @@ function enterGameScreen() {
       return;
     }
 
-    // For action and guessing phases, make sure we are on game screen
-    if (!document.getElementById("screen-game").classList.contains("active")) {
-      showScreen("game");
+    // Handle reveal screen
+    if (phase === "reveal") {
+      renderReveal(gameState);
+      return;
+    }
+
+    // New round detected — reset all per-round state for everyone
+    if (currentRound !== lastRound) {
+      lastRound = currentRound;
       selectedGuesses = new Set();
       hasSubmittedGuess = false;
       hasVotedOn = {};
       calledVoteOn = {};
+      showScreen("game");
     }
 
     renderGameScreen(gameState);
